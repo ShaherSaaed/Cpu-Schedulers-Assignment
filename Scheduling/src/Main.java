@@ -62,16 +62,20 @@ public class Main {
         scheduler.execute();
 
         // Print results
-        System.out.println("Process Execution Results:");
-        System.out.printf("%-10s%-15s%-15s%-15s%-15s%-15s%n",
-                "Process", "Arrival Time", "Burst Time",
-                "Completion Time", "Turnaround Time", "Waiting Time");
+        System.out.println("+----------+--------------+------------+----------------+-----------------+--------------+");
+        System.out.println("| Process  | Arrival Time | Burst Time | Completion Time| Turnaround Time | Waiting Time |");
+        System.out.println("+----------+--------------+------------+----------------+-----------------+--------------+");
+
         for (Process process : processes) {
-            System.out.printf("%-10d%-15d%-15d%-15d%-15d%-15d%n",
-                    process.getId(), process.getArrivalTime(),
-                    process.getBurstTime(), process.getCompletionTime(),
-                    process.getTurnaroundTime(), process.getWaitingTime());
+            System.out.println("| P" + process.getId() +
+                    "       | " + process.getArrivalTime() +
+                    "            | " + process.getBurstTime() +
+                    "          | " + process.getCompletionTime() +
+                    "              | " + process.getTurnaroundTime() +
+                    "               | " + process.getWaitingTime() + "           |");
         }
+
+        System.out.println("+----------+--------------+------------+----------------+-----------------+--------------+");
 
         scanner.close();
     }

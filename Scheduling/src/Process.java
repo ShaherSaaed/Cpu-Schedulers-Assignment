@@ -10,7 +10,7 @@ public class Process {
     private int waitingTime;
     private int quantum;
 
-    public Process(int id, int priority, int arrivalTime, int burstTime){
+    public Process(int id, int priority, int arrivalTime, int burstTime) {
         this.id = id;
         this.priority = priority;
         this.arrivalTime = arrivalTime;
@@ -25,27 +25,27 @@ public class Process {
 
     /////////////////////////////Setters/////////////////////////////
 
-    public void setRemainingBurstTime(int remainingBurstTime){
+    public void setRemainingBurstTime(int remainingBurstTime) {
         this.remainingBurstTime = remainingBurstTime;
     }
 
-    public void setStartTime(int startTime){
+    public void setStartTime(int startTime) {
         this.startTime = startTime;
     }
 
-    public void setCompletionTime(int completionTime){
+    public void setCompletionTime(int completionTime) {
         this.completionTime = completionTime;
     }
 
-    public void setTurnaroundTime(int turnaroundTime){
+    public void setTurnaroundTime(int turnaroundTime) {
         this.turnaroundTime = turnaroundTime;
     }
 
-    public void setQuantum(int quantum){
+    public void setQuantum(int quantum) {
         this.quantum = quantum;
     }
 
-    public void setWaitingTime(int waitingTime){
+    public void setWaitingTime(int waitingTime) {
         this.waitingTime = waitingTime;
     }
 
@@ -67,27 +67,27 @@ public class Process {
         return burstTime;
     }
 
-    public int getRemainingBurstTime(){
+    public int getRemainingBurstTime() {
         return remainingBurstTime;
     }
 
-    public int getStartTime(){
+    public int getStartTime() {
         return startTime;
     }
 
-    public int getCompletionTime(){
+    public int getCompletionTime() {
         return completionTime;
     }
 
-    public int getTurnaroundTime(){
+    public int getTurnaroundTime() {
         return turnaroundTime;
     }
 
-    public int getQuantum(){
+    public int getQuantum() {
         return quantum;
     }
 
-    public int getWaitingTime(){
+    public int getWaitingTime() {
         return waitingTime;
     }
 
