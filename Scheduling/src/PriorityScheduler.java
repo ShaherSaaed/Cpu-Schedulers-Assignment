@@ -18,9 +18,8 @@ public class PriorityScheduler implements Scheduler {
             if (currentTime < process.getArrivalTime()) {
                 currentTime = process.getArrivalTime();
             }
-
+//TODO: These need to be recalculated as they don't work as intentioned when arrival time > 0 and priority is 1, the completion time is arrival time + completion time, while it needs to be only the completion time.
             currentTime += process.getBurstTime();
-
             process.setCompletionTime(currentTime);
 
             process.setTurnaroundTime(process.getCompletionTime() - process.getArrivalTime());
