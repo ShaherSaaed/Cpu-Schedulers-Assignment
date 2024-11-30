@@ -63,11 +63,12 @@ public class Main {
 
         // Print results
         System.out.println("+----------+--------------+------------+----------------+-----------------+--------------+");
-        System.out.println("| Process  | Arrival Time | Burst Time | Completion Time| Turnaround Time | Waiting Time |");
+        System.out.println("| Process  | Priority | Arrival Time | Burst Time | Completion Time| Turnaround Time | Waiting Time |");
         System.out.println("+----------+--------------+------------+----------------+-----------------+--------------+");
 
         for (Process process : processes) {
             System.out.println("| P" + process.getId() +
+                    "       | " + process.getPriority() +
                     "       | " + process.getArrivalTime() +
                     "            | " + process.getBurstTime() +
                     "          | " + process.getCompletionTime() +
