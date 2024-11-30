@@ -2,7 +2,7 @@ public class Process {
     private final int id;
     private final int priority;
     private final int arrivalTime;
-    private final int burstTime;
+    private int burstTime;
     private int remainingBurstTime;
     private int startTime;
     private int completionTime;
@@ -89,6 +89,12 @@ public class Process {
 
     public int getWaitingTime() {
         return waitingTime;
+    }
+
+    public int decreaseBurstTime() {
+        if (burstTime - 1 > 0)
+            burstTime--;
+        return burstTime;
     }
 
 }
