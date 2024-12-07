@@ -134,10 +134,10 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             }
 
             for (Process p : readyQueue) {
-                p.incrementWaitTime();
+                p.setWaitingTime(p.getWaitingTime() + 1);
                 if (p.getWaitTime() >= 5) {
                     p.setRemainingBurstTime(p.getRemainingBurstTime() - 1);
-                    p.resetWaitTime();
+                    p.setWaitingTime(0);
                     logEvent("Aging applied to process P" + p.getId() + ": Remaining Time reduced to " + p.getRemainingBurstTime());
                 }
             }

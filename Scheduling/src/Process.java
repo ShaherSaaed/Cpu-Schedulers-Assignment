@@ -67,14 +67,6 @@ public class Process {
         this.waitingTime = waitingTime;
     }
 
-    public void incrementWaitTime() {
-        waitTime++;
-    } //TODO
-
-    public void resetWaitTime() {
-        waitTime = 0;
-    } //TODO
-
     public void updateFcaiFactor(double v1, double v2) {
         this.fcaiFactor = (10 - priority) + (arrivalTime / v1) + (remainingBurstTime / v2);
     }
