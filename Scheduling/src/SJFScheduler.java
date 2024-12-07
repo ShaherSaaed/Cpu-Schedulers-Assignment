@@ -35,7 +35,7 @@ public class SJFScheduler implements Scheduler {
                 }
 
                 if (currentTime - selectedProcess.getArrivalTime() > maxWaitingTime) {
-                    selectedProcess.decreaseBurstTime();
+                    selectedProcess.setBurstTime(selectedProcess.getBurstTime() - 1);
                 }
 
                 assert process != null;
@@ -54,6 +54,21 @@ public class SJFScheduler implements Scheduler {
 
             }
         }
+    }
+
+    @Override
+    public void setVisible(boolean b) {
+
+    }
+
+    @Override
+    public void updateExecutionHistory() {
+
+    }
+
+    @Override
+    public void updateStatistics(String scheduler, int n, double a, double b) {
+
     }
 
 }

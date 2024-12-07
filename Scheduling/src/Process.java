@@ -1,32 +1,46 @@
+import java.awt.Color;
+
 public class Process {
     private final int id;
+    private final String name;
+    private final Color color;
     private final int priority;
     private final int arrivalTime;
     private int burstTime;
+    private int comparedBurstTime;
     private int remainingBurstTime;
+    private int comparedRemainingBurstTime;
+    private int quantum;
+    private double fcaiFactor;
+    public boolean isCompleted;
     private int startTime;
     private int completionTime;
     private int turnaroundTime;
     private int waitingTime;
-    private int quantum;
+    private int waitTime;
 
-    public Process(int id, int priority, int arrivalTime, int burstTime) {
+    // Constructor
+    public Process(int id, String name, Color color, int priority, int arrivalTime, int burstTime, int quantum) {
         this.id = id;
+        this.name = name;
         this.priority = priority;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
+        this.comparedBurstTime = burstTime;
         this.remainingBurstTime = burstTime;
+        this.quantum = quantum;
         this.startTime = -1;
         this.completionTime = 0;
         this.turnaroundTime = 0;
         this.waitingTime = 0;
-        this.quantum = 0;
+        this.fcaiFactor = 0.0;
+        this.waitTime = 0;
+        this.color = color;
     }
 
-    /////////////////////////////Setters/////////////////////////////
-
+    ///////////////////////////////////////////////////////Setters///////////////////////////////////////////////////////
     public void setRemainingBurstTime(int remainingBurstTime) {
-        this.remainingBurstTime = remainingBurstTime;
+        this.comparedRemainingBurstTime = remainingBurstTime;
     }
 
     public void setStartTime(int startTime) {
@@ -45,12 +59,31 @@ public class Process {
         this.quantum = quantum;
     }
 
+    public void setBurstTime(int burstTime) {
+        this.burstTime = burstTime;
+    }
+
     public void setWaitingTime(int waitingTime) {
         this.waitingTime = waitingTime;
     }
 
-    /////////////////////////////Getters/////////////////////////////
+    public void incrementWaitTime() {
+        waitTime++;
+    } //TODO
 
+    public void resetWaitTime() {
+        waitTime = 0;
+    } //TODO
+
+    public void updateFcaiFactor(double v1, double v2) {
+        this.fcaiFactor = (10 - priority) + (arrivalTime / v1) + (remainingBurstTime / v2);
+    }
+
+    public void setComparedRemainingBurstTime(int comparedRemainingBurstTime) {
+        this.comparedRemainingBurstTime = comparedRemainingBurstTime;
+    }
+
+    ///////////////////////////////////////////////////////Getters///////////////////////////////////////////////////////
     public int getId() {
         return id;
     }
@@ -71,10 +104,6 @@ public class Process {
         return remainingBurstTime;
     }
 
-    public int getStartTime() {
-        return startTime;
-    }
-
     public int getCompletionTime() {
         return completionTime;
     }
@@ -91,10 +120,19 @@ public class Process {
         return waitingTime;
     }
 
-    public int decreaseBurstTime() {
-        if (burstTime - 1 > 0)
-            burstTime--;
-        return burstTime;
+    public int getWaitTime() {
+        return waitTime;
     }
 
+    public Color getColor() {
+        return color;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getComparedRemainingBurstTime() {
+        return comparedRemainingBurstTime;
+    }
 }

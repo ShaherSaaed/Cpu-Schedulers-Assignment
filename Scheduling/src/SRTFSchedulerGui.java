@@ -1,11 +1,11 @@
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.util.*;
+import java.util.List;
+import java.util.Queue;
 
-public class PriorityScheduler extends JFrame implements Scheduler {
+public class SRTFSchedulerGui extends JFrame implements Scheduler {
     private static final int WIDTH = 1000;
     private static final int HEIGHT = 400;
     private final List<Process> processes;
@@ -18,7 +18,7 @@ public class PriorityScheduler extends JFrame implements Scheduler {
     private final List<ExecutionSlot> executionHistory = new ArrayList<>();
     private final List<Process> completedProcesses = new ArrayList<>();
 
-    public PriorityScheduler(ArrayList<Process> processes, int contextSwitchTime) {
+    public SRTFSchedulerGui(List<Process> processes, int contextSwitchTime) {
         this.processes = new ArrayList<>(processes);
         this.contextSwitchTime = contextSwitchTime;
 
@@ -87,61 +87,89 @@ public class PriorityScheduler extends JFrame implements Scheduler {
                 drawGraph(g);
             }
         };
-        graphPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT)); 
-        
+        graphPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+
         JScrollPane scrollPane = new JScrollPane(graphPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        
-        add(scrollPane, BorderLayout.CENTER); 
+
+        add(scrollPane, BorderLayout.CENTER);
+
     }
 
     @Override
     public void execute() {
-        processes.sort(Comparator.comparingInt(Process::getArrivalTime)
-                .thenComparingInt(Process::getPriority));
-
         int currentTime = 0;
-        ArrayList<Process> readyQueue = new ArrayList<>();
-        
+        Queue<Process> readyQueue = new PriorityQueue<>((p1, p2) -> {
+            if (p1.getRemainingBurstTime() != p2.getRemainingBurstTime()) {
+                return Integer.compare(p1.getRemainingBurstTime(), p2.getRemainingBurstTime());
+            }
+            if (p1.getArrivalTime() != p2.getArrivalTime()) {
+                return Integer.compare(p1.getArrivalTime(), p2.getArrivalTime());
+            }
+            return Integer.compare(p1.getPriority(), p2.getPriority());
+        });
+
+        Process currentProcess = null;
         StringBuilder executionOrder = new StringBuilder();
 
-        while (!processes.isEmpty() || !readyQueue.isEmpty()) {
-            while (!processes.isEmpty() && processes.get(0).getArrivalTime() <= currentTime) {
-                readyQueue.add(processes.remove(0));
-                logEvent("Process P" + readyQueue.get(readyQueue.size() - 1).getId() + " added to ready queue at time " + currentTime);
-                 
-            }
-
-            if (readyQueue.isEmpty()) {
-                if (!processes.isEmpty()) {
-                    currentTime = processes.get(0).getArrivalTime();
+        while (!processes.isEmpty() || !readyQueue.isEmpty() || currentProcess != null) {
+            Iterator<Process> iterator = processes.iterator();
+            while (iterator.hasNext()) {
+                Process p = iterator.next();
+                if (p.getArrivalTime() <= currentTime) {
+                    readyQueue.add(p);
+                    iterator.remove();
+                    logEvent("Process P" + p.getId() + " added to ready queue at time " + currentTime);
                 }
-                continue;
             }
 
-            readyQueue.sort(Comparator.comparingInt(Process::getPriority)
-                    .thenComparingInt(Process::getArrivalTime));
-
-            Process currentProcess = readyQueue.remove(0);
-            executionOrder.append("P" + currentProcess.getId() + " "); 
-
-            if (currentTime > 0 && currentProcess.getArrivalTime() != currentTime) {
+            if (currentProcess != null && !readyQueue.isEmpty() &&
+                    readyQueue.peek().getRemainingBurstTime() < currentProcess.getRemainingBurstTime()) {
+                readyQueue.add(currentProcess);
+                currentProcess = readyQueue.poll();
                 currentTime += contextSwitchTime;
                 logEvent("Context switch at time " + currentTime + " - Switching to process P" + currentProcess.getId());
+                logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + (currentTime));
             }
-            logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + (currentTime));
-            
-            ExecutionSlot slot = new ExecutionSlot(currentProcess, currentTime , currentTime + currentProcess.getRemainingBurstTime());
-            executionHistory.add(slot);
-            currentTime += currentProcess.getBurstTime();
-            currentProcess.setCompletionTime(currentTime);
 
-            currentProcess.setTurnaroundTime(currentProcess.getCompletionTime() - currentProcess.getArrivalTime());
-            currentProcess.setWaitingTime(currentProcess.getTurnaroundTime() - currentProcess.getBurstTime());
-            logEvent("Process P" + currentProcess.getId() + " completed at time " + currentTime);
+            for (Process p : readyQueue) {
+                p.incrementWaitTime();
+                if (p.getWaitTime() >= 5) {
+                    p.setRemainingBurstTime(p.getRemainingBurstTime() - 1);
+                    p.resetWaitTime();
+                    logEvent("Aging applied to process P" + p.getId() + ": Remaining Time reduced to " + p.getRemainingBurstTime());
+                }
+            }
+//TODO: 5ly el updated burst time 8er el burst time nafso
+            if (currentProcess == null && !readyQueue.isEmpty()) {
+                currentProcess = readyQueue.poll();
+                logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + currentTime);
+                if (!executionHistory.isEmpty() &&
+                        (executionHistory.getLast().endTime != currentTime)) {
+                    currentTime += contextSwitchTime;
+                }
+            }
+
+            if (currentProcess != null) {
+                executionHistory.add(new ExecutionSlot(currentProcess, currentTime, currentTime + 1));
+                currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime() - 1);
+                if (currentProcess.getRemainingBurstTime() == 0) {
+                    currentProcess.setCompletionTime(currentTime + 1);
+                    currentProcess.setTurnaroundTime(currentProcess.getCompletionTime() - currentProcess.getArrivalTime());
+                    currentProcess.setWaitingTime(currentProcess.getTurnaroundTime() - currentProcess.getBurstTime());
+                    completedProcesses.add(currentProcess);
+                    logEvent("Process P" + currentProcess.getId() + " completed at time " + (currentTime + 1));
+                    executionOrder.append("P" + currentProcess.getId() + " ");
+                    currentProcess = null;
+                }
+            }
+
+            currentTime++;
             graphPanel.repaint();
         }
+
+        updateExecutionHistory();
 
         logEvent("\nExecution order: " + executionOrder.toString().trim());
     }
@@ -178,30 +206,32 @@ public class PriorityScheduler extends JFrame implements Scheduler {
             g.drawString(processName, textX, textY);
 
             g.setColor(Color.BLACK);
-            g.drawString(String.valueOf(slot.startTime), startX, verticalOffset - 10);
-            g.drawString(String.valueOf(slot.endTime), startX + width, verticalOffset - 10);
+            String timeLabel = String.valueOf(slot.startTime);
+            int timeLabelX = startX + width / 2 - g.getFontMetrics().stringWidth(timeLabel) / 2;
+            int timeLabelY = verticalOffset - 10;
+            g.drawString(timeLabel, timeLabelX, timeLabelY);
         }
-    } 
+    }
 
     @Override
     public void updateStatistics(String scheduler, int n, double AWT, double ATAT) {
-        statsTextArea.setText("Scheduler Name: " + scheduler + "\nAWT: " + AWT + "\nATAT: " + ATAT);
+        statsTextArea.setText("Scheduler Name:" + scheduler + "\nAWT: " + AWT + "\nATAT: " + ATAT);
     }
 
     @Override
     public void updateExecutionHistory() {
         executionHistoryTextArea.setText(executionHistoryTextArea.getText());
     }
+}
 
-    class ExecutionSlot {
-        Process process;
-        int startTime;
-        int endTime;
+class ExecutionSlot {
+    Process process;
+    int startTime;
+    int endTime;
 
-        public ExecutionSlot(Process process, int startTime, int endTime) {
-            this.process = process;
-            this.startTime = startTime;
-            this.endTime = endTime;
-        }
+    public ExecutionSlot(Process process, int startTime, int endTime) {
+        this.process = process;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 }

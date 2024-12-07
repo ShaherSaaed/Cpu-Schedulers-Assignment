@@ -26,4 +26,19 @@ public class FCFSScheduler implements Scheduler {
             process.setWaitingTime(process.getTurnaroundTime() - process.getBurstTime());
         }
     }
+
+    @Override
+    public void setVisible(boolean b) {
+
+    }
+
+    @Override
+    public void updateExecutionHistory() {
+
+    }
+
+    @Override
+    public void updateStatistics(String scheduler, int n, double a, double b) {
+
+    }
 }
