@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.List;
 import java.util.Queue;
 
+import static java.util.Collections.min;
+
 public class SRTFSchedulerGui extends JFrame implements Scheduler {
     private static final int WIDTH = 1000;
     private static final int HEIGHT = 400;
@@ -107,7 +109,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             if (p1.getArrivalTime() != p2.getArrivalTime()) {
                 return Integer.compare(p1.getArrivalTime(), p2.getArrivalTime());
             }
-            return Integer.compare(p1.getPriority(), p2.getPriority());
+            return Integer.compare(Math.min(p1.getPriority(),p1.getBoostedPriority()), Math.min(p2.getPriority(),p2.getBoostedPriority()));
         });
 
         Process currentProcess = null;
@@ -134,11 +136,11 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             }
 
             for (Process p : readyQueue) {
-                p.setWaitingTime(p.getWaitingTime() + 1);
+                p.incrementWaitTime();
                 if (p.getWaitTime() >= 5) {
-                    p.setRemainingBurstTime(p.getRemainingBurstTime() - 1);
-                    p.setWaitingTime(0);
-                    logEvent("Aging applied to process P" + p.getId() + ": Remaining Time reduced to " + p.getRemainingBurstTime());
+                    p.boostPriority(1);
+                    p.resetWaitTime();
+                    logEvent("Aging applied to process P" + p.getId() + ": Priority boosted to " + Math.min(p.getPriority(),p.getBoostedPriority()));
                 }
             }
 //TODO: 5ly el updated burst time 8er el burst time nafso
