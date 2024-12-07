@@ -7,6 +7,7 @@ public class Process {
     private final int priority;
     private final int arrivalTime;
     private int burstTime;
+    private int boostedPriority;
     private int comparedBurstTime;
     private int remainingBurstTime;
     private int comparedRemainingBurstTime;
@@ -111,6 +112,13 @@ public class Process {
     public int getWaitingTime() {
         return waitingTime;
     }
+
+    public void incrementWaitTime() {this.waitTime++;}
+    public void boostPriority(int boost) {this.boostedPriority = this.priority - boost;}
+
+    public int getBoostedPriority() {return boostedPriority;}
+
+    public void resetWaitTime() {this.waitTime = 0;}
 
     public int getWaitTime() {
         return waitTime;
