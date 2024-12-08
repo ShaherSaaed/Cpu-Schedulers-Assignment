@@ -5,8 +5,6 @@ import java.util.*;
 import java.util.List;
 import java.util.Queue;
 
-import static java.util.Collections.min;
-
 public class SRTFSchedulerGui extends JFrame implements Scheduler {
     private static final int WIDTH = 1000;
     private static final int HEIGHT = 400;
@@ -44,7 +42,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
         statsTextArea.setBackground(Color.LIGHT_GRAY);
         statsTextArea.setText("Schedule Name: Shortest Remaining Time First (SRTF)\nAWT: 0\nATAT: 0");
         JScrollPane statsScroll = new JScrollPane(statsTextArea);
-        statsScroll.setPreferredSize(new Dimension(WIDTH / 2, 60));
+        statsScroll.setPreferredSize(new Dimension(WIDTH /2, 60));
         add(statsScroll, BorderLayout.SOUTH);
 
         String[] columnNames = {"Process", "Name", "Priority", "BurstTime", "ArrivalTime"};
@@ -98,7 +96,6 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
         add(scrollPane, BorderLayout.CENTER);
 
     }
-
     @Override
     public void execute() {
         int currentTime = 0;
@@ -109,7 +106,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             if (p1.getArrivalTime() != p2.getArrivalTime()) {
                 return Integer.compare(p1.getArrivalTime(), p2.getArrivalTime());
             }
-            return Integer.compare(Math.min(p1.getPriority(),p1.getBoostedPriority()), Math.min(p2.getPriority(),p2.getBoostedPriority()));
+            return Integer.compare(p1.getPriority(), p2.getPriority());
         });
 
         Process currentProcess = null;
@@ -129,7 +126,9 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             if (currentProcess != null && !readyQueue.isEmpty() &&
                     readyQueue.peek().getRemainingBurstTime() < currentProcess.getRemainingBurstTime()) {
                 readyQueue.add(currentProcess);
+                System.out.println(currentProcess.getRemainingBurstTime()+currentProcess.getcountAging());
                 currentProcess = readyQueue.poll();
+                currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime() + currentProcess.getcountAging());
                 currentTime += contextSwitchTime;
                 logEvent("Context switch at time " + currentTime + " - Switching to process P" + currentProcess.getId());
                 logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + (currentTime));
@@ -138,21 +137,23 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             for (Process p : readyQueue) {
                 p.incrementWaitTime();
                 if (p.getWaitTime() >= 5) {
-                    p.boostPriority(1);
+                    p.setRemainingBurstTime(p.getRemainingBurstTime() - 1);
+                    p.isAged = true;
                     p.resetWaitTime();
-                    logEvent("Aging applied to process P" + p.getId() + ": Priority boosted to " + Math.min(p.getPriority(),p.getBoostedPriority()));
-                }
-            }
-//TODO: 5ly el updated burst time 8er el burst time nafso
-            if (currentProcess == null && !readyQueue.isEmpty()) {
-                currentProcess = readyQueue.poll();
-                logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + currentTime);
-                if (!executionHistory.isEmpty() &&
-                        (executionHistory.getLast().endTime != currentTime)) {
-                    currentTime += contextSwitchTime;
+                    logEvent("Aging applied to process P" + p.getId() + ": Remaining Time reduced to " + p.getRemainingBurstTime());
+                    p.setcountAging(p.getcountAging() + 1);
                 }
             }
 
+            if (currentProcess == null && !readyQueue.isEmpty()) {
+                currentProcess = readyQueue.poll();
+                currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime()+currentProcess.getcountAging());
+                logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + currentTime);
+                if (!executionHistory.isEmpty() &&
+                        executionHistory.get(executionHistory.size() - 1).endTime != currentTime) {
+                    currentTime += contextSwitchTime;
+                }
+            }
             if (currentProcess != null) {
                 executionHistory.add(new ExecutionSlot(currentProcess, currentTime, currentTime + 1));
                 currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime() - 1);
@@ -161,7 +162,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
                     currentProcess.setTurnaroundTime(currentProcess.getCompletionTime() - currentProcess.getArrivalTime());
                     currentProcess.setWaitingTime(currentProcess.getTurnaroundTime() - currentProcess.getBurstTime());
                     completedProcesses.add(currentProcess);
-                    logEvent("Process P" + currentProcess.getId() + " completed at time " + (currentTime + 1));
+                    logEvent("Process P" + currentProcess.getId() + " completed at time " + (currentTime+1));
                     executionOrder.append("P" + currentProcess.getId() + " ");
                     currentProcess = null;
                 }
