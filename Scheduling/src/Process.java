@@ -19,6 +19,8 @@ public class Process {
     private int turnaroundTime;
     private int waitingTime;
     private int waitTime;
+    private int countAging=0;
+    boolean isAged = false;
 
     // Constructor
     public Process(int id, String name, Color color, int priority, int arrivalTime, int burstTime, int quantum) {
@@ -41,7 +43,7 @@ public class Process {
 
     ///////////////////////////////////////////////////////Setters///////////////////////////////////////////////////////
     public void setRemainingBurstTime(int remainingBurstTime) {
-        this.comparedRemainingBurstTime = remainingBurstTime;
+        this.remainingBurstTime = remainingBurstTime;
     }
 
     public void setStartTime(int startTime) {
@@ -75,7 +77,10 @@ public class Process {
     public void setComparedRemainingBurstTime(int comparedRemainingBurstTime) {
         this.comparedRemainingBurstTime = comparedRemainingBurstTime;
     }
-
+    public void setcountAging(int countAging) {
+        this.countAging = countAging;
+    }
+    
     ///////////////////////////////////////////////////////Getters///////////////////////////////////////////////////////
     public int getId() {
         return id;
@@ -134,5 +139,8 @@ public class Process {
 
     public int getComparedRemainingBurstTime() {
         return comparedRemainingBurstTime;
+    }
+    public int getcountAging() {
+        return countAging;
     }
 }
