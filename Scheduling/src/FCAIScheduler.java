@@ -1,98 +1,101 @@
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class FCAIScheduler implements Scheduler {
+    private final ArrayList<Process> processes;
+    private final PriorityQueue<Process> readyQueue;
+    private int currentTime;
 
-    ArrayList<Process> processes;
-
-    FCAIScheduler(ArrayList<Process> processes) {
+    public FCAIScheduler(ArrayList<Process> processes) {
         this.processes = processes;
+        this.readyQueue = new PriorityQueue<>(Comparator.comparingDouble(this::calculateFcaiFactor));
+        this.currentTime = 0;
     }
 
     @Override
     public void execute() {
-        int lastArrivalTime = processes.stream().mapToInt(Process::getArrivalTime).max().orElse(0);
-        int maxBurstTime = processes.stream().mapToInt(Process::getBurstTime).max().orElse(0);
-        double V1 = lastArrivalTime / 10.0;
-        double V2 = maxBurstTime / 10.0;
-
-        for (Process p : processes) {
-            p.updateFcaiFactor(V1, V2);
+        double v1 = calculateV1();
+        double v2 = calculateV2();
+        for (Process process : processes) {
+            process.updateFcaiFactor(v1, v2);
+            System.out.println("Process P" + process.getId() + " Fcai Factor updated: " + process.getFcaiFactor());
         }
+        while (!processes.isEmpty() || !readyQueue.isEmpty()) {
+            addArrivedProcesses();
 
-        System.out.printf("%-8s%-10s%-15s%-20s%-20s%-10s%-20s%-30s\n",
-                "Time", "Process", "Executed Time", "Remaining Burst Time",
-                "Updated Quantum", "Priority", "FCAI Factor", "Action - Details");
-        System.out.println("---------------------------------------------------------------------------------------------------------------");
-
-        int currentTime = 0;
-
-        while (true) {
-            boolean allCompleted = true;
-
-            for (Process p : processes) {
-                if (!p.isCompleted) {
-                    allCompleted = false;
-
-                    if (p.getArrivalTime() <= currentTime) {
-                        int executedTime = Math.min(p.getQuantum(), p.getRemainingBurstTime());
-                        int remainingBurstTime = p.getRemainingBurstTime() - executedTime;
-
-                        double oldFCAI = Math.ceil(10 - p.getPriority())
-                                + Math.ceil(p.getArrivalTime() / V1)
-                                + Math.ceil(p.getRemainingBurstTime() / V2);
-                        double newFCAI = remainingBurstTime > 0
-                                ? Math.ceil(10 - p.getPriority())
-                                + Math.ceil(p.getArrivalTime() / V1)
-                                + Math.ceil(remainingBurstTime / V2)
-                                : 0;
-                        String updatedQuantum;
-                        String updatedFCAI;
-                        if (remainingBurstTime == 0) {
-                            p.isCompleted = true;
-                            updatedQuantum = "Completed";
-                            updatedFCAI = "Completed";
-                        } else {
-                            int oldQuantum = p.getQuantum();
-                            p.setQuantum(p.getQuantum() + 2);
-                            updatedQuantum = oldQuantum + " → " + p.getQuantum();
-                            updatedFCAI = String.format("%.0f → %.0f", oldFCAI, newFCAI);
-                        }
-                        String actionDetails = p.getId() + " runs for " + executedTime + " units";
-                        if (remainingBurstTime == 0) {
-                            actionDetails += ", process completed.";
-                        } else {
-                            actionDetails += ", remaining burst = " + remainingBurstTime;
-                        }
-                        System.out.printf("%-8s%-10s%-15d%-20d%-20s%-10d%-20s%-30s\n",
-                                currentTime + "–" + (currentTime + executedTime),
-                                p.getId(), executedTime, remainingBurstTime,
-                                updatedQuantum, p.getPriority(),
-                                updatedFCAI, actionDetails);
-                        p.setRemainingBurstTime(remainingBurstTime);
-                        currentTime += executedTime;
-                        break;
-                    }
-                }
+            if (readyQueue.isEmpty()) {
+                currentTime++;
+                continue;
             }
-            if (allCompleted) {
-                break;
-            }
+            Process currentProcess = readyQueue.poll();
+            executeProcess(currentProcess, v1, v2);
         }
+    }
+
+    private void addArrivedProcesses() {
+        processes.removeIf(process -> {
+            if (process.getArrivalTime() <= currentTime && !process.isCompleted) {
+                readyQueue.offer(process);
+                System.out.println("Process P" + process.getId() + " added to ready queue at time " + currentTime);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void executeProcess(Process process, double v1, double v2) {
+        int quantum = process.getQuantum();
+        int executionTime = (int) (quantum * 0.4);
+        int actualExecutionTime = Math.min(executionTime, process.getRemainingBurstTime());
+        process.setRemainingBurstTime(process.getRemainingBurstTime() - actualExecutionTime);
+        currentTime += actualExecutionTime;
+
+        System.out.println("Executing P" + process.getId() + " for " + actualExecutionTime + " units, remaining burst: " + process.getRemainingBurstTime());
+
+        if (process.getRemainingBurstTime() > 0) {
+            int remainingQuantum = quantum - actualExecutionTime;
+            if (remainingQuantum > 0) {
+                process.setQuantum(remainingQuantum + 2);
+            } else {
+                process.setQuantum(quantum + actualExecutionTime);
+            }
+            process.updateFcaiFactor(v1, v2);
+            readyQueue.offer(process);
+        } else {
+            process.setCompleted(true);
+            process.setCompletionTime(currentTime);
+            process.setTurnaroundTime(currentTime - process.getArrivalTime());
+            process.setWaitingTime(process.getTurnaroundTime() - process.getBurstTime());
+            System.out.println("Process P" + process.getId() + " completed at time " + currentTime);
+        }
+    }
+
+    private double calculateFcaiFactor(Process process) {
+        return (10 - process.getPriority()) +
+                (process.getArrivalTime() / calculateV1()) +
+                (process.getRemainingBurstTime() / calculateV2());
+    }
+
+    private double calculateV1() {
+        int lastArrivalTime = processes.stream().mapToInt(Process::getArrivalTime).max().orElse(1);
+        return (double) lastArrivalTime / 10.0;
+    }
+
+    private double calculateV2() {
+        int maxBurstTime = processes.stream().mapToInt(Process::getBurstTime).max().orElse(1);
+        return (double) maxBurstTime / 10.0;
     }
 
     @Override
     public void setVisible(boolean b) {
-
     }
 
     @Override
     public void updateExecutionHistory() {
-
     }
 
     @Override
-    public void updateStatistics(String scheduler, int n, double a, double b) {
-
+    public void updateStatistics(String scheduler, int n, double awt, double atat) {
     }
-
 }
