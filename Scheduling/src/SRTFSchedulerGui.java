@@ -42,7 +42,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
         statsTextArea.setBackground(Color.LIGHT_GRAY);
         statsTextArea.setText("Schedule Name: Shortest Remaining Time First (SRTF)\nAWT: 0\nATAT: 0");
         JScrollPane statsScroll = new JScrollPane(statsTextArea);
-        statsScroll.setPreferredSize(new Dimension(WIDTH /2, 60));
+        statsScroll.setPreferredSize(new Dimension(WIDTH / 2, 60));
         add(statsScroll, BorderLayout.SOUTH);
 
         String[] columnNames = {"Process", "Name", "Priority", "BurstTime", "ArrivalTime"};
@@ -96,6 +96,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
         add(scrollPane, BorderLayout.CENTER);
 
     }
+
     @Override
     public void execute() {
         int currentTime = 0;
@@ -127,28 +128,28 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
                     readyQueue.peek().getRemainingBurstTime() < currentProcess.getRemainingBurstTime()) {
                 readyQueue.add(currentProcess);
                 currentProcess = readyQueue.poll();
-                currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime() + currentProcess.getcountAging());
-                currentProcess.resetcountAging();
+                currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime() + currentProcess.getCountAging());
+                currentProcess.setCountAging(0);
                 currentTime += contextSwitchTime;
                 logEvent("Context switch at time " + currentTime + " - Switching to process P" + currentProcess.getId());
                 logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + (currentTime));
             }
 
             for (Process p : readyQueue) {
-                p.incrementWaitTime();
+                p.setWaitingTime(p.getWaitingTime() + 1);
                 if (p.getWaitTime() >= 5) {
                     p.setRemainingBurstTime(p.getRemainingBurstTime() - 1);
-                    p.isAged = true;
-                    p.resetWaitTime();
+                    p.isAged = true; //TODO
+                    p.setWaitingTime(0);
                     logEvent("Aging applied to process P" + p.getId() + ": Remaining Time reduced to " + p.getRemainingBurstTime());
-                    p.setcountAging(p.getcountAging() + 1);
+                    p.setCountAging(p.getCountAging() + 1);
                 }
             }
 
             if (currentProcess == null && !readyQueue.isEmpty()) {
                 currentProcess = readyQueue.poll();
-                currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime()+currentProcess.getcountAging());
-                currentProcess.resetcountAging();
+                currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime() + currentProcess.getCountAging());
+                currentProcess.setCountAging(0);
                 logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + currentTime);
                 if (!executionHistory.isEmpty() &&
                         executionHistory.get(executionHistory.size() - 1).endTime != currentTime) {
@@ -163,7 +164,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
                     currentProcess.setTurnaroundTime(currentProcess.getCompletionTime() - currentProcess.getArrivalTime());
                     currentProcess.setWaitingTime(currentProcess.getTurnaroundTime() - currentProcess.getBurstTime());
                     completedProcesses.add(currentProcess);
-                    logEvent("Process P" + currentProcess.getId() + " completed at time " + (currentTime+1));
+                    logEvent("Process P" + currentProcess.getId() + " completed at time " + (currentTime + 1));
                     executionOrder.append("P" + currentProcess.getId() + " ");
                     currentProcess = null;
                 }
@@ -225,17 +226,5 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
     @Override
     public void updateExecutionHistory() {
         executionHistoryTextArea.setText(executionHistoryTextArea.getText());
-    }
-}
-
-class ExecutionSlot {
-    Process process;
-    int startTime;
-    int endTime;
-
-    public ExecutionSlot(Process process, int startTime, int endTime) {
-        this.process = process;
-        this.startTime = startTime;
-        this.endTime = endTime;
     }
 }
