@@ -126,9 +126,9 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             if (currentProcess != null && !readyQueue.isEmpty() &&
                     readyQueue.peek().getRemainingBurstTime() < currentProcess.getRemainingBurstTime()) {
                 readyQueue.add(currentProcess);
-                System.out.println(currentProcess.getRemainingBurstTime()+currentProcess.getcountAging());
                 currentProcess = readyQueue.poll();
                 currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime() + currentProcess.getcountAging());
+                currentProcess.resetcountAging();
                 currentTime += contextSwitchTime;
                 logEvent("Context switch at time " + currentTime + " - Switching to process P" + currentProcess.getId());
                 logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + (currentTime));
@@ -148,6 +148,7 @@ public class SRTFSchedulerGui extends JFrame implements Scheduler {
             if (currentProcess == null && !readyQueue.isEmpty()) {
                 currentProcess = readyQueue.poll();
                 currentProcess.setRemainingBurstTime(currentProcess.getRemainingBurstTime()+currentProcess.getcountAging());
+                currentProcess.resetcountAging();
                 logEvent("Starting execution of process P" + currentProcess.getId() + " at time " + currentTime);
                 if (!executionHistory.isEmpty() &&
                         executionHistory.get(executionHistory.size() - 1).endTime != currentTime) {
