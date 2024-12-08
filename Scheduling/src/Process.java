@@ -68,7 +68,7 @@ public class Process {
     public void setcountAging(int countAging) {
         this.countAging = countAging;
     }
-    
+
     ///////////////////////////////////////////////////////Getters///////////////////////////////////////////////////////
     public int getId() {
         return id;
@@ -111,6 +111,10 @@ public class Process {
     public void resetWaitTime() {this.waitTime = 0;}
 
     public void resetcountAging() {this.countAging = 0;}
+
+    void setCompleted(boolean Flag){this.isCompleted=Flag;}
+
+    double getFcaiFactor(){return this.fcaiFactor;}
 
     public int getWaitTime() {
         return waitTime;
