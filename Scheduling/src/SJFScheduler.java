@@ -10,65 +10,46 @@ public class SJFScheduler implements Scheduler {
 
     @Override
     public void execute() {
-        processes.sort(Comparator.comparingInt(Process::getBurstTime)
-                .thenComparingInt(Process::getArrivalTime));
+        processes.sort(Comparator.comparingInt(Process::getArrivalTime));
 
         int currentTime = 0;
-        int maxWaitingTime = 10;
-        int completedProcess = 0;
+        int completedProcesses = 0;
+        int n = processes.size();
 
-        while (completedProcess < processes.size()) {
+        while (completedProcesses < n) {
             Process selectedProcess = null;
 
             for (Process process : processes) {
-                {
-                    if (process != null && process.getArrivalTime() <= currentTime) {
-                        if (selectedProcess == null || process.getBurstTime() < selectedProcess.getBurstTime()) {
-                            selectedProcess = process;
-                        }
+                if (!process.isCompleted && process.getArrivalTime() <= currentTime) {
+                    if (selectedProcess == null || process.getBurstTime() < selectedProcess.getBurstTime()) {
+                        selectedProcess = process;
                     }
                 }
-
-                if (selectedProcess == null) {
-                    currentTime++;
-                    continue;
-                }
-
-                if (currentTime - selectedProcess.getArrivalTime() > maxWaitingTime) {
-                    selectedProcess.setBurstTime(selectedProcess.getBurstTime() - 1);
-                }
-
-                assert process != null;
-
-                process.setStartTime(currentTime);
-
-                currentTime += process.getBurstTime();
-
-                selectedProcess.setCompletionTime(currentTime);
-
-                selectedProcess.setTurnaroundTime(selectedProcess.getCompletionTime() - selectedProcess.getArrivalTime());
-
-                selectedProcess.setWaitingTime(selectedProcess.getTurnaroundTime() - selectedProcess.getBurstTime());
-
-                completedProcess++;
-
             }
+
+            if (selectedProcess == null) {
+                currentTime++;
+                continue;
+            }
+
+            currentTime += selectedProcess.getBurstTime();
+            selectedProcess.setCompletionTime(currentTime);
+            selectedProcess.setTurnaroundTime(selectedProcess.getCompletionTime() - selectedProcess.getArrivalTime());
+            selectedProcess.setWaitingTime(selectedProcess.getTurnaroundTime() - selectedProcess.getBurstTime());
+            selectedProcess.isCompleted = true;
+            completedProcesses++;
         }
     }
 
     @Override
     public void setVisible(boolean b) {
-
     }
 
     @Override
     public void updateExecutionHistory() {
-
     }
 
     @Override
     public void updateStatistics(String scheduler, int n, double a, double b) {
-
     }
-
 }
