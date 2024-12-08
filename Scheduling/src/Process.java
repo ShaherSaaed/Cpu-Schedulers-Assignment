@@ -7,14 +7,10 @@ public class Process {
     private final int priority;
     private final int arrivalTime;
     private int burstTime;
-    private int boostedPriority;
-    private int comparedBurstTime;
     private int remainingBurstTime;
-    private int comparedRemainingBurstTime;
     private int quantum;
     private double fcaiFactor;
     public boolean isCompleted;
-    private int startTime;
     private int completionTime;
     private int turnaroundTime;
     private int waitingTime;
@@ -29,25 +25,20 @@ public class Process {
         this.priority = priority;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
-        this.comparedBurstTime = burstTime;
         this.remainingBurstTime = burstTime;
         this.quantum = quantum;
-        this.startTime = -1;
         this.completionTime = 0;
         this.turnaroundTime = 0;
         this.waitingTime = 0;
         this.fcaiFactor = 0.0;
         this.waitTime = 0;
         this.color = color;
+        this.isCompleted = false;
     }
 
     ///////////////////////////////////////////////////////Setters///////////////////////////////////////////////////////
     public void setRemainingBurstTime(int remainingBurstTime) {
         this.remainingBurstTime = remainingBurstTime;
-    }
-
-    public void setStartTime(int startTime) {
-        this.startTime = startTime;
     }
 
     public void setCompletionTime(int completionTime) {
@@ -74,9 +65,6 @@ public class Process {
         this.fcaiFactor = (10 - priority) + (arrivalTime / v1) + (remainingBurstTime / v2);
     }
 
-    public void setComparedRemainingBurstTime(int comparedRemainingBurstTime) {
-        this.comparedRemainingBurstTime = comparedRemainingBurstTime;
-    }
     public void setcountAging(int countAging) {
         this.countAging = countAging;
     }
@@ -119,11 +107,10 @@ public class Process {
     }
 
     public void incrementWaitTime() {this.waitTime++;}
-    public void boostPriority(int boost) {this.boostedPriority = this.priority - boost;}
-
-    public int getBoostedPriority() {return boostedPriority;}
 
     public void resetWaitTime() {this.waitTime = 0;}
+
+    public void resetcountAging() {this.countAging = 0;}
 
     public int getWaitTime() {
         return waitTime;
@@ -137,9 +124,6 @@ public class Process {
         return name;
     }
 
-    public int getComparedRemainingBurstTime() {
-        return comparedRemainingBurstTime;
-    }
     public int getcountAging() {
         return countAging;
     }
