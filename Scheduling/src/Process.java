@@ -6,17 +6,18 @@ public class Process {
     private final Color color;
     private final int priority;
     private final int arrivalTime;
-    private int burstTime;
+    private final int burstTime;
+    private final int waitTime;
+
     private int remainingBurstTime;
     private int quantum;
-    private double fcaiFactor;
-    public boolean isCompleted;
     private int completionTime;
     private int turnaroundTime;
     private int waitingTime;
-    private int waitTime;
-    private int countAging=0;
-    boolean isAged = false;
+    private int countAging = 0;
+    private double fcaiFactor;
+    public boolean isCompleted;
+    boolean isAged = false; //TODO
 
     // Constructor
     public Process(int id, String name, Color color, int priority, int arrivalTime, int burstTime, int quantum) {
@@ -53,21 +54,21 @@ public class Process {
         this.quantum = quantum;
     }
 
-    public void setBurstTime(int burstTime) {
-        this.burstTime = burstTime;
-    }
-
     public void setWaitingTime(int waitingTime) {
         this.waitingTime = waitingTime;
     }
 
-    public void updateFcaiFactor(double v1, double v2) {
-        this.fcaiFactor = (10 - priority) + (arrivalTime / v1) + (remainingBurstTime / v2);
+    public void setFcaiFactor(double v1, double v2) {
+        this.fcaiFactor = (10 - priority) + Math.ceil(arrivalTime / v1) + Math.ceil(remainingBurstTime / v2);
     }
 
-    public void setcountAging(int countAging) {
+    public void setCountAging(int countAging) {
         this.countAging = countAging;
     }
+
+    public void setCompleted(boolean Flag) {
+        this.isCompleted = Flag;
+    } //TODO
 
     ///////////////////////////////////////////////////////Getters///////////////////////////////////////////////////////
     public int getId() {
@@ -106,15 +107,9 @@ public class Process {
         return waitingTime;
     }
 
-    public void incrementWaitTime() {this.waitTime++;}
-
-    public void resetWaitTime() {this.waitTime = 0;}
-
-    public void resetcountAging() {this.countAging = 0;}
-
-    void setCompleted(boolean Flag){this.isCompleted=Flag;}
-
-    double getFcaiFactor(){return this.fcaiFactor;}
+    public double getFcaiFactor() {
+        return fcaiFactor;
+    }
 
     public int getWaitTime() {
         return waitTime;
@@ -128,7 +123,7 @@ public class Process {
         return name;
     }
 
-    public int getcountAging() {
+    public int getCountAging() {
         return countAging;
     }
 }
