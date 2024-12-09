@@ -122,12 +122,11 @@ public class SJFScheduler extends JFrame implements Scheduler {
             }
 
             for (Process p : readyQueue) {
-                p.setWaitingTime(p.getWaitingTime() + 1);
-                System.out.println("hhh" + p.getWaitTime());
+                p.setWaitTime(p.getWaitTime() + 1);
                 if (p.getWaitTime() >= 5) {
                     p.setRemainingBurstTime(p.getRemainingBurstTime() - 1);
                     p.isAged = true;
-                    p.setWaitingTime(0);
+                    p.setWaitTime(0);
                     logEvent("Aging applied to process P" + p.getId() + ": Remaining Time reduced to " + p.getRemainingBurstTime());
                     p.setCountAging(p.getCountAging() + 1);
                 }
