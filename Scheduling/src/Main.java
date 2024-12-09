@@ -29,11 +29,20 @@ public class Main {
         int choice = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter context switching time: ");
-        int contextSwitchTime = scanner.nextInt();
-
         System.out.print("Enter the number of processes: ");
         int numberOfProcesses = scanner.nextInt();
+
+        int contextSwitchTime = 0;
+        if (choice == 3 || choice == 4) {
+            System.out.print("Enter context switching time: ");
+            contextSwitchTime = scanner.nextInt();
+            if (contextSwitchTime < 0) {
+                System.out.println("Invalid context switching time");
+
+            }
+        }
+        int priority = 0;
+        int quantum = 0;
 
         for (int i = 0; i < numberOfProcesses; i++) {
             System.out.println("Enter details for Process " + (i + 1) + ":");
@@ -42,14 +51,21 @@ public class Main {
             scanner.nextLine();
             System.out.print("Name: ");
             String name = scanner.nextLine();
-            System.out.print("Priority: ");
-            int priority = scanner.nextInt();
+
+            if (choice == 4) {
+                System.out.print("Priority: ");
+                priority = scanner.nextInt();
+            }
+
+            if (choice == 5) {
+                System.out.print("Quantum: ");
+                quantum = scanner.nextInt();
+            }
+
             System.out.print("Arrival Time: ");
             int arrivalTime = scanner.nextInt();
             System.out.print("Burst Time: ");
             int burstTime = scanner.nextInt();
-            System.out.print("Quantum: (if not FCAI Scheduling enter 0)");
-            int quantum = scanner.nextInt();
             System.out.println("Color for Process " + i + ":");
             Color color = JColorChooser.showDialog(null, "Select Color for process" + i, Color.RED);
 
@@ -93,20 +109,20 @@ public class Main {
         }
 
         scheduler.execute();
+        if (choice != 5) {
+            System.out.println("+----------+-----------------+------------+-------------------+");
+            System.out.println("| Process  | Completion Time | Turnaround Time | Waiting Time |");
+            System.out.println("+----------+-----------------+------------+----------------+--+");
 
-        System.out.println("+----------+-----------------+------------+-------------------+");
-        System.out.println("| Process  | Completion Time | Turnaround Time | Waiting Time |");
-        System.out.println("+----------+-----------------+------------+----------------+--+");
-
-        for (Process process : processes) {
-            if (process.getWaitingTime() < 0) process.setWaitingTime(0);
-            System.out.println("| P" + process.getId() +
-                    "              | " + process.getCompletionTime() +
-                    "              | " + process.getTurnaroundTime() +
-                    "              | " + process.getWaitingTime() + "           |");
+            for (Process process : processes) {
+                if (process.getWaitingTime() < 0) process.setWaitingTime(0);
+                System.out.println("| P" + process.getId() +
+                        "              | " + process.getCompletionTime() +
+                        "              | " + process.getTurnaroundTime() +
+                        "              | " + process.getWaitingTime() + "           |");
+            }
+            System.out.println("+----------+--------------+------------+----------------+----------+");
         }
-
-        System.out.println("+----------+--------------+------------+----------------+----------+");
 
         int totalWaitingTime = 0;
         int totalTurnaroundTime = 0;
