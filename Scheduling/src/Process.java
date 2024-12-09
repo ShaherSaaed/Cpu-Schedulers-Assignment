@@ -57,18 +57,23 @@ public class Process {
     public void setWaitingTime(int waitingTime) {
         this.waitingTime = waitingTime;
     }
-
     public void setWaitTime(int waitTime) {
         this.waitTime = waitTime;
+    }
+
+    public void setFcaiFactor(double fcaiFactor) {
+        this.fcaiFactor = fcaiFactor;
     }
 
     public void setCountAging(int countAging) {
         this.countAging = countAging;
     }
-
-    public void setFcaiFactor(double v1, double v2) {
+    public void updateFcaiFactor(double v1, double v2) {
         this.fcaiFactor = (10 - priority) + Math.ceil(arrivalTime / v1) + Math.ceil(remainingBurstTime / v2);
     }
+    public void setCompleted(boolean Flag) {
+        this.isCompleted = Flag;
+    } //TODO
 
     ///////////////////////////////////////////////////////Getters///////////////////////////////////////////////////////
     public int getId() {
@@ -125,5 +130,9 @@ public class Process {
 
     public int getCountAging() {
         return countAging;
+    }
+
+    public boolean isCompleted() {
+        return this.isCompleted;
     }
 }

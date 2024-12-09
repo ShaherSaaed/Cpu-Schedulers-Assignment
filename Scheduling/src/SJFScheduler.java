@@ -7,7 +7,7 @@ import java.util.Queue;
 
 public class SJFScheduler extends JFrame implements Scheduler {
     private static final int WIDTH = 1000;
-    private static final int HEIGHT = 400;
+    private static final int HEIGHT = 500;
     private final List<Process> processes;
     private JPanel graphPanel;
     private final JTable statsTable;
@@ -192,13 +192,11 @@ public class SJFScheduler extends JFrame implements Scheduler {
             g.drawString(processName, textX, textY);
 
             g.setColor(Color.BLACK);
-            String timeLabel = String.valueOf(slot.startTime);
-            int timeLabelX = startX + width / 2 - g.getFontMetrics().stringWidth(timeLabel) / 2;
-            int timeLabelY = verticalOffset - 10;
-            g.drawString(timeLabel, timeLabelX, timeLabelY);
+            g.drawString(String.valueOf(slot.startTime), startX, verticalOffset - 10);
+            g.drawString(String.valueOf(slot.endTime), startX + width, verticalOffset - 10);
         }
-    }
-
+    } 
+    
     @Override
     public void updateStatistics(String scheduler, int n, double AWT, double ATAT) {
         statsTextArea.setText("Scheduler Name:" + scheduler + "\nAWT: " + AWT + "\nATAT: " + ATAT);

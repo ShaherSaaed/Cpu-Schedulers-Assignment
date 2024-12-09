@@ -52,10 +52,8 @@ public class Main {
             System.out.print("Name: ");
             String name = scanner.nextLine();
 
-            if (choice == 4 || choice == 5) {
-                System.out.print("Priority: ");
-                priority = scanner.nextInt();
-            }
+            System.out.print("Priority: ");
+            priority = scanner.nextInt();
 
             if (choice == 5) {
                 System.out.print("Quantum: ");
@@ -66,7 +64,7 @@ public class Main {
             int arrivalTime = scanner.nextInt();
             System.out.print("Burst Time: ");
             int burstTime = scanner.nextInt();
-            System.out.println("Color for Process " + i + ":");
+            System.out.println("Color for Process " + (i + 1) + ":");
             Color color = JColorChooser.showDialog(null, "Select Color for process" + i, Color.RED);
 
             processes.add(new Process(id, name, color != null ? color : Color.BLACK, priority, arrivalTime, burstTime, quantum));
@@ -109,7 +107,6 @@ public class Main {
         }
 
         scheduler.execute();
-        if (choice != 5) {
             System.out.println("+----------+-----------------+------------+-------------------+");
             System.out.println("| Process  | Completion Time | Turnaround Time | Waiting Time |");
             System.out.println("+----------+-----------------+------------+----------------+--+");
@@ -122,7 +119,6 @@ public class Main {
                         "              | " + process.getWaitingTime() + "           |");
             }
             System.out.println("+----------+--------------+------------+----------------+----------+");
-        }
 
         int totalWaitingTime = 0;
         int totalTurnaroundTime = 0;

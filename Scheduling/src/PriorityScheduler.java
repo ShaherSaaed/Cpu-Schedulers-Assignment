@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class PriorityScheduler extends JFrame implements Scheduler {
     private static final int WIDTH = 1000;
-    private static final int HEIGHT = 400;
+    private static final int HEIGHT = 500;
     private final List<Process> processes;
     private final int contextSwitchTime;
 
@@ -16,7 +16,6 @@ public class PriorityScheduler extends JFrame implements Scheduler {
     private JTextArea statsTextArea;
     private JTextArea executionHistoryTextArea;
     private final List<ExecutionSlot> executionHistory = new ArrayList<>();
-    private final List<Process> completedProcesses = new ArrayList<>();
 
     public PriorityScheduler(ArrayList<Process> processes, int contextSwitchTime) {
         this.processes = new ArrayList<>(processes);
@@ -159,7 +158,7 @@ public class PriorityScheduler extends JFrame implements Scheduler {
         for (ExecutionSlot slot : executionHistory) {
             maxTime = Math.max(maxTime, slot.endTime);
         }
-        int graphWidth = maxTime * timeSlotWidth;
+        int graphWidth = (maxTime * timeSlotWidth) + 30;
 
         graphPanel.setPreferredSize(new Dimension(graphWidth, HEIGHT));
         graphPanel.revalidate();
@@ -193,15 +192,4 @@ public class PriorityScheduler extends JFrame implements Scheduler {
         executionHistoryTextArea.setText(executionHistoryTextArea.getText());
     }
 
-    class ExecutionSlot {
-        Process process;
-        int startTime;
-        int endTime;
-
-        public ExecutionSlot(Process process, int startTime, int endTime) {
-            this.process = process;
-            this.startTime = startTime;
-            this.endTime = endTime;
-        }
-    }
 }
