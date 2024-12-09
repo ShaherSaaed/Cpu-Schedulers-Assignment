@@ -7,8 +7,8 @@ public class Process {
     private final int priority;
     private final int arrivalTime;
     private final int burstTime;
-    private final int waitTime;
-
+    private int waitTime;
+    
     private int remainingBurstTime;
     private int quantum;
     private int completionTime;
@@ -16,7 +16,7 @@ public class Process {
     private int waitingTime;
     private int countAging = 0;
     private double fcaiFactor;
-    public boolean isCompleted;
+    public boolean isCompleted=false;
     boolean isAged = false; //TODO
 
     // Constructor
@@ -58,17 +58,17 @@ public class Process {
         this.waitingTime = waitingTime;
     }
 
-    public void setFcaiFactor(double v1, double v2) {
-        this.fcaiFactor = (10 - priority) + Math.ceil(arrivalTime / v1) + Math.ceil(remainingBurstTime / v2);
+    public void setWaitTime(int waitTime) {
+        this.waitTime = waitTime;
     }
 
     public void setCountAging(int countAging) {
         this.countAging = countAging;
     }
 
-    public void setCompleted(boolean Flag) {
-        this.isCompleted = Flag;
-    } //TODO
+    public void setFcaiFactor(double v1, double v2) {
+        this.fcaiFactor = (10 - priority) + Math.ceil(arrivalTime / v1) + Math.ceil(remainingBurstTime / v2);
+    }
 
     ///////////////////////////////////////////////////////Getters///////////////////////////////////////////////////////
     public int getId() {
