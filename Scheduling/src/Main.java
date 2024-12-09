@@ -52,7 +52,7 @@ public class Main {
             System.out.print("Name: ");
             String name = scanner.nextLine();
 
-            if (choice == 4) {
+            if (choice == 4 || choice == 5) {
                 System.out.print("Priority: ");
                 priority = scanner.nextInt();
             }
